@@ -31,16 +31,18 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-async fn handler(Path(number): Path<u64>) -> Html<String> {
-    let digits = number.to_string();
+async fn handler(Path(count): Path<String>) -> Result<Html<String>, String> {
+    if !count.chars().all(|c| c.is_numeric()) {
+        return Err(String::from("Parameter is not a unsigned int"));
+    }
     let mut html_string = String::new();
 
-    for digit in digits.chars() {
+    for digit in count.chars() {
         html_string.push_str(&format!("<img src=\"/resources/{}.gif\" border=\"0\" alt=\"{}\">", digit, digit));
     }
 
-    tracing::info!(html_string);
+    // tracing::info!(html_string);
 
-    Html(html_string)
+    Ok(Html(html_string))
 }
 
